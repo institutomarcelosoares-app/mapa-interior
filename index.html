@@ -298,7 +298,7 @@ function renderQ(idx){
   }else if(q.type==='mc'){
     inp=q.opts.map((o,i)=>`<button class="mc-option${saved===i?' sel':''}" onclick="selectMc(${i})">${o}</button>`).join('');
   }else{
-    inp=`<textarea id="ta" placeholder="${q.placeholder}" oninput="answers[current]=this.value.trim()">${saved||''}</textarea>`;
+    inp=`<textarea id="ta" placeholder="${q.placeholder}" oninput="answers[current]=this.value.trim();updateBtn()">${saved||''}</textarea>`;
   }
   document.getElementById('q-container').innerHTML=`
     <div class="q-block">
