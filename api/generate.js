@@ -1,6 +1,3 @@
-// api/generate.js
-// Chama a API da Anthropic no servidor — a chave nunca vai para o cliente
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -16,20 +13,27 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
-    const raw = data.content.map(c => c.text || '').join('');
+    console.log('Resposta Anthropic:', JSON.stringify(data).slice(0, 200));
+
+    if (!data.content || !data.content[0]) {
+      console.error('Estrutura inesperada:', JSON.stringify(data));
+      return res.status(500).json({ error: 'Resposta inválida da IA', data });
+    }
+
+    const raw = data.content[0].text;
     const clean = raw.replace(/```json|```/g, '').trim();
     const report = JSON.parse(clean);
 
     return res.status(200).json({ report });
   } catch (err) {
-    console.error('Erro na geração:', err);
-    return res.status(500).json({ error: 'Erro ao gerar relatório' });
+    console.error('Erro na geração:', err.message);
+    return res.status(500).json({ error: err.message });
   }
 }
