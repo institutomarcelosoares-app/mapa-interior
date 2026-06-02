@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mapa Interior — Marcelo Soares</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font-family:Georgia,serif;background:#f9f7f4;color:#1a110a;min-height:100vh}
+  body{max-width:560px;margin:0 auto;padding:2rem 1.25rem 4rem}
+
+  .screen{display:none}.screen.active{display:block}
+
+  /* HERO */
+  .hero{text-align:center;padding:3rem 0 2rem}
+  .logo-eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#a09080;margin-bottom:1.25rem}
+  .logo-title{font-size:22px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:#1a110a;margin-top:.75rem}
+  .logo-div{width:48px;height:0.5px;background:#c4b8ac;margin:.6rem auto}
+  .logo-sub{font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:#a09080}
+  .hero-text{font-size:15px;line-height:1.75;color:#5a4030;max-width:380px;margin:1.75rem auto 0}
+  .hero-meta{display:flex;justify-content:center;gap:1.5rem;font-size:11px;color:#a09080;margin:1.5rem 0 2rem;flex-wrap:wrap}
+  .hero-meta span{display:flex;align-items:center;gap:5px}
+
+  /* FORM */
+  .field{margin-bottom:.875rem}
+  .field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#a09080;margin-bottom:.35rem}
+  .field input{width:100%;padding:11px 14px;border:0.5px solid #d8d0c6;border-radius:6px;background:#fff;font-family:Georgia,serif;font-size:14px;color:#1a110a;outline:none;transition:border-color .15s}
+  .field input:focus{border-color:#8a7060}
+  .field input::placeholder{color:#c4b8ac}
+
+  /* BOTÕES */
+  .btn-primary{width:100%;padding:13px;background:#1e1208;color:#f9f7f4;border:none;border-radius:6px;font-family:Georgia,serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-primary:hover{opacity:.85}
+  .btn-primary:disabled{opacity:.35;cursor:not-allowed}
+  .btn-back{padding:9px 16px;background:transparent;border:0.5px solid #d8d0c6;border-radius:6px;font-family:Georgia,serif;font-size:12px;color:#a09080;cursor:pointer;letter-spacing:.06em}
+  .btn-back:hover{border-color:#a09080}
+
+  /* PROGRESSO */
+  .progress-wrap{margin-bottom:1.5rem}
+  .progress-bar{height:2px;background:#e8e2da;border-radius:2px;overflow:hidden}
+  .progress-fill{height:100%;background:#1e1208;border-radius:2px;transition:width .4s}
+  .progress-label{font-size:10px;color:#b0a898;text-align:right;margin-top:5px;letter-spacing:.06em}
+
+  /* QUESTÃO */
+  .q-block{background:#fff;border:0.5px solid #e8e2da;border-radius:10px;padding:1.5rem}
+  .q-header{display:flex;align-items:center;gap:8px;margin-bottom:.875rem}
+  .q-num{font-size:10px;letter-spacing:.1em;color:#b0a898;font-family:Georgia,serif}
+  .dim-tag{font-size:10px;padding:2px 8px;border-radius:4px;letter-spacing:.05em}
+  .tag-T{background:#f0ede8;color:#6a5040}
+  .tag-D{background:#e8f0ea;color:#3a6040}
+  .tag-E{background:#f0e8e8;color:#6a3030}
+  .tag-N{background:#ece8f0;color:#403060}
+  .q-text{font-size:15px;color:#1a110a;line-height:1.6;margin-bottom:1.125rem}
+
+  .scale-row{display:flex;gap:6px;margin-bottom:.5rem}
+  .scale-btn{flex:1;padding:10px 4px;border:0.5px solid #d8d0c6;border-radius:6px;background:transparent;font-family:Georgia,serif;font-size:13px;color:#8a7868;cursor:pointer;text-align:center;transition:all .15s}
+  .scale-btn:hover{border-color:#8a7060;color:#3a2a1e}
+  .scale-btn.sel{background:#1e1208;color:#f9f7f4;border-color:#1e1208}
+  .scale-labels{display:flex;justify-content:space-between;font-size:10px;color:#b0a898;margin-bottom:1rem;line-height:1.4}
+
+  .mc-option{display:block;width:100%;text-align:left;padding:11px 14px;border:0.5px solid #e0d8d0;border-radius:6px;background:transparent;font-family:Georgia,serif;font-size:13.5px;color:#1a110a;cursor:pointer;margin-bottom:6px;transition:all .15s;line-height:1.5}
+  .mc-option:hover{border-color:#a09080;background:#faf8f5}
+  .mc-option.sel{background:#f5f0e8;border-color:#8a7060;color:#3a2010}
+
+  textarea{width:100%;border:0.5px solid #d8d0c6;border-radius:6px;padding:11px 14px;font-family:Georgia,serif;font-size:14px;color:#1a110a;background:#fff;resize:vertical;min-height:90px;line-height:1.6;outline:none;transition:border-color .15s}
+  textarea:focus{border-color:#8a7060}
+  textarea::placeholder{color:#c4b8ac}
+
+  .nav-row{display:flex;gap:8px;margin-top:1.25rem}
+
+  /* LOADING */
+  .loading-wrap{text-align:center;padding:4rem 1rem}
+  .spinner{width:36px;height:36px;border:2px solid #e8e2da;border-top-color:#1e1208;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.25rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-text{font-size:14px;color:#8a7868;line-height:1.7}
+
+  /* CONFIRMAÇÃO */
+  .confirm-wrap{text-align:center;padding:3rem 0}
+  .confirm-check{width:52px;height:52px;border-radius:50%;border:1px solid #c4b8ac;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:#8a7060;font-size:20px}
+  .confirm-title{font-size:22px;font-weight:400;letter-spacing:.06em;margin-bottom:.75rem}
+  .confirm-sub{font-size:14px;color:#6a5848;line-height:1.75;max-width:340px;margin:0 auto 2rem}
+  .info-box{background:#fff;border:0.5px solid #e8e2da;border-radius:8px;padding:1rem 1.25rem;margin-bottom:1.75rem;text-align:left}
+  .info-row{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#6a5848;padding:5px 0;line-height:1.5}
+  .info-row strong{color:#1a110a}
+  .divider{height:0.5px;background:#e8e2da;margin:1.75rem 0}
+  .indicate-title{font-size:15px;font-weight:400;margin-bottom:.4rem}
+  .indicate-sub{font-size:13px;color:#8a7868;margin-bottom:1rem;line-height:1.6}
+  .indicate-row{display:flex;gap:8px;margin-bottom:.5rem}
+  .indicate-row input{flex:1;padding:10px 14px;border:0.5px solid #d8d0c6;border-radius:6px;font-family:Georgia,serif;font-size:13px;color:#1a110a;outline:none}
+  .indicate-row input:focus{border-color:#8a7060}
+  .btn-indicate{padding:10px 18px;background:#1e1208;color:#f9f7f4;border:none;border-radius:6px;font-family:Georgia,serif;font-size:12px;letter-spacing:.08em;cursor:pointer;white-space:nowrap}
+  .share-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:.75rem}
+  .share-btn{padding:9px 18px;border:0.5px solid #d8d0c6;border-radius:6px;background:transparent;font-family:Georgia,serif;font-size:12px;color:#6a5848;cursor:pointer;letter-spacing:.05em;transition:border-color .15s}
+  .share-btn:hover{border-color:#8a7060}
+  .msg-ok{font-size:12px;color:#6a8060;margin-top:.5rem}
+
+  /* INVÁLIDO */
+  .invalid-wrap{text-align:center;padding:3rem 0}
+  .invalid-icon{width:52px;height:52px;border-radius:50%;border:1px solid #e8c8c0;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:#c06050;font-size:20px}
+</style>
+</head>
+<body>
+
+<!-- TOKEN INVÁLIDO -->
+<div id="screen-invalid" class="screen">
+  <div class="invalid-wrap">
+    <div class="invalid-icon">✕</div>
+    <h2 style="font-size:20px;font-weight:400;margin-bottom:.75rem">Acesso não autorizado</h2>
+    <p style="font-size:14px;color:#6a5848;line-height:1.75;max-width:320px;margin:0 auto">Este link é inválido ou já foi utilizado. Verifique o e-mail recebido após a compra com seu link exclusivo de acesso.</p>
+  </div>
+</div>
+
+<!-- JÁ RESPONDEU -->
+<div id="screen-already" class="screen">
+  <div class="confirm-wrap">
+    <div class="confirm-check">✓</div>
+    <h2 style="font-size:20px;font-weight:400;margin-bottom:.75rem">Você já enviou seu mapa</h2>
+    <p style="font-size:14px;color:#6a5848;line-height:1.75;max-width:300px;margin:0 auto">Suas respostas foram recebidas. Aguarde a devolutiva de Marcelo no seu e-mail em até 48 horas úteis.</p>
+  </div>
+</div>
+
+<!-- BOAS-VINDAS -->
+<div id="screen-welcome" class="screen">
+  <div class="hero">
+    <div class="logo-eyebrow">Marcelo Soares</div>
+    <svg width="80" height="80" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#c8bfb4" stroke-width="0.8"/>
+      <circle cx="60" cy="60" r="43" fill="none" stroke="#d8d0c6" stroke-width="0.45" stroke-dasharray="2.5 7"/>
+      <circle cx="60" cy="60" r="30" fill="none" stroke="#e2dbd2" stroke-width="0.4" stroke-dasharray="1.5 9"/>
+      <circle cx="60" cy="60" r="17" fill="none" stroke="#ece6de" stroke-width="0.35" stroke-dasharray="1 11"/>
+      <line x1="60" y1="7" x2="60" y2="113" stroke="#d8d0c6" stroke-width="0.35" opacity="0.55"/>
+      <line x1="7" y1="60" x2="113" y2="60" stroke="#d8d0c6" stroke-width="0.35" opacity="0.55"/>
+      <line x1="21.5" y1="21.5" x2="98.5" y2="98.5" stroke="#e2dbd2" stroke-width="0.3" opacity="0.5"/>
+      <line x1="98.5" y1="21.5" x2="21.5" y2="98.5" stroke="#e2dbd2" stroke-width="0.3" opacity="0.5"/>
+      <polygon points="60,8 63.5,60 56.5,60" fill="#1e1208"/>
+      <polygon points="60,112 63.5,60 56.5,60" fill="#bdb0a4"/>
+      <polygon points="8,60 60,56.5 60,63.5" fill="#a89888" opacity="0.45"/>
+      <polygon points="112,60 60,56.5 60,63.5" fill="#a89888" opacity="0.45"/>
+      <circle cx="60" cy="60" r="5.5" fill="#f9f7f4" stroke="#1e1208" stroke-width="0.9"/>
+      <circle cx="60" cy="60" r="2" fill="#1e1208"/>
+    </svg>
+    <div class="logo-title">Mapa Interior</div>
+    <div class="logo-div"></div>
+    <div class="logo-sub">por Marcelo Soares</div>
+    <p class="hero-text">30 perguntas sobre como você realmente funciona. Sem respostas certas ou erradas — apenas você sendo honesto consigo mesmo.</p>
+    <div class="hero-meta">
+      <span>⏱ 15–20 minutos</span>
+      <span>🔒 Suas respostas são privadas</span>
+      <span>✉ Devolutiva em até 48h</span>
+    </div>
+    <div style="background:#fff;border:0.5px solid #e8e2da;border-radius:8px;padding:.875rem 1rem;margin-bottom:1.5rem;text-align:left">
+      <div style="font-size:14px;font-weight:400;color:#1a110a" id="welcome-name"></div>
+      <div style="font-size:12px;color:#a09080;margin-top:2px" id="welcome-email"></div>
+    </div>
+    <button class="btn-primary" onclick="startQuiz()">Começar meu mapa →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="prog-label">1 de 30</div>
+  </div>
+  <div id="q-container"></div>
+</div>
+
+<!-- LOADING -->
+<div id="screen-loading" class="screen">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <p class="loading-text" id="loading-text">Processando suas respostas…<br>Aguarde um momento.</p>
+  </div>
+</div>
+
+<!-- CONFIRMAÇÃO -->
+<div id="screen-done" class="screen">
+  <div class="confirm-wrap">
+    <svg width="80" height="80" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 1.25rem">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#c8bfb4" stroke-width="0.8"/>
+      <circle cx="60" cy="60" r="43" fill="none" stroke="#d8d0c6" stroke-width="0.45" stroke-dasharray="2.5 7"/>
+      <circle cx="60" cy="60" r="30" fill="none" stroke="#e2dbd2" stroke-width="0.4" stroke-dasharray="1.5 9"/>
+      <circle cx="60" cy="60" r="17" fill="none" stroke="#ece6de" stroke-width="0.35" stroke-dasharray="1 11"/>
+      <line x1="60" y1="7" x2="60" y2="113" stroke="#d8d0c6" stroke-width="0.35" opacity="0.55"/>
+      <line x1="7" y1="60" x2="113" y2="60" stroke="#d8d0c6" stroke-width="0.35" opacity="0.55"/>
+      <polygon points="60,8 63.5,60 56.5,60" fill="#1e1208"/>
+      <polygon points="60,112 63.5,60 56.5,60" fill="#bdb0a4"/>
+      <polygon points="8,60 60,56.5 60,63.5" fill="#a89888" opacity="0.45"/>
+      <polygon points="112,60 60,56.5 60,63.5" fill="#a89888" opacity="0.45"/>
+      <circle cx="60" cy="60" r="5.5" fill="#f9f7f4" stroke="#1e1208" stroke-width="0.9"/>
+      <circle cx="60" cy="60" r="2" fill="#1e1208"/>
+    </svg>
+    <h2 class="confirm-title">Mapa recebido, <span id="conf-nome"></span>.</h2>
+    <p class="confirm-sub">Suas respostas foram enviadas. Marcelo vai analisar seu perfil e você receberá sua devolutiva personalizada em vídeo no e-mail cadastrado.</p>
+    <div class="info-box">
+      <div class="info-row">✉ &nbsp;Devolutiva para <strong id="conf-email"></strong></div>
+      <div class="info-row">⏱ &nbsp;Prazo: <strong>até 48 horas úteis</strong></div>
+      <div class="info-row">▶ &nbsp;Formato: <strong>vídeo personalizado gravado por Marcelo</strong></div>
+    </div>
+    <div class="divider"></div>
+    <div class="indicate-title">Conhece alguém que precisa disso?</div>
+    <p class="indicate-sub">Indique um amigo. Se ele comprar, você recebe um bônus — Marcelo entra em contato.</p>
+    <div class="indicate-row">
+      <input id="inp-indicate" type="email" placeholder="E-mail de quem você quer indicar">
+      <button class="btn-indicate" onclick="sendIndication()">Indicar</button>
+    </div>
+    <p id="indicate-ok" class="msg-ok" style="display:none">✓ Indicação registrada!</p>
+    <div class="divider"></div>
+    <p style="font-size:12px;color:#b0a898;margin-bottom:.875rem;letter-spacing:.04em">Compartilhe o Mapa Interior</p>
+    <div class="share-row">
+      <button class="share-btn" onclick="shareWhatsApp()">WhatsApp</button>
+      <button class="share-btn" onclick="shareLink()">Copiar link</button>
+    </div>
+    <p id="link-ok" class="msg-ok" style="display:none">✓ Link copiado!</p>
+  </div>
+</div>
+
+<script>
+const questions=[
+  {n:1,text:"Quando você está diante de uma decisão importante, o que acontece primeiro em você?",type:"mc",dims:["T"],opts:["Penso nas consequências e analiso racionalmente","Sinto antes — o corpo ou emoção me guia","Consulto alguém de confiança antes de decidir","Ajo e ajusto depois, conforme os resultados"]},
+  {n:2,text:"Em situações de conflito, sua primeira reação costuma ser:",type:"mc",dims:["T"],opts:["Enfrentar diretamente — prefiro resolver na hora","Recuar e processar internamente antes de responder","Tentar mediar e encontrar um acordo","Ignorar e esperar que passe por conta própria"]},
+  {n:3,text:"Após interações intensas ou eventos sociais, você tende a:",type:"scale",dims:["T","N"],labels:["Precisar de tempo sozinho para recarregar","Me sentir energizado e querer mais contato"]},
+  {n:4,text:"Com que frequência você age por impulso e depois reflete, versus reflete muito antes de agir?",type:"scale",dims:["T"],labels:["Ajo primeiro, reflito depois","Reflito longamente antes de qualquer ação"]},
+  {n:5,text:"Como você se sente quando não consegue cumprir algo que prometeu a si mesmo?",type:"open",dims:["T","E"],placeholder:"Descreva o que acontece internamente…"},
+  {n:6,text:"Quando está sobrecarregado, o que você mais tende a fazer:",type:"mc",dims:["T"],opts:["Busco ajuda ativamente — não consigo sozinho","Me isolo até conseguir processar","Continuo empurrando — parar piora","Reclamo, mas sigo em frente"]},
+  {n:7,text:"Você se reconhece mais como alguém que:",type:"scale",dims:["T","N"],labels:["Sente profundamente e depois pensa","Pensa primeiro e depois, talvez, sente"]},
+  {n:8,text:"Em um grupo, você naturalmente tende a:",type:"mc",dims:["D"],opts:["Liderar — tomo a frente e conduzo","Articular pessoas — conecto e influencio","Analisar — processo dados e dou estrutura","Apoiar — garanto que todos estejam bem"]},
+  {n:9,text:"Quando um projeto está atrasado e depende de outras pessoas, você:",type:"open",dims:["D"],placeholder:"O que você faz ou sente nessa situação?"},
+  {n:10,text:"O que incomoda mais você no trabalho:",type:"mc",dims:["D"],opts:["Falta de resultados e execução","Falta de harmonia e tensão no time","Falta de dados e processos claros","Falta de liberdade e criatividade"]},
+  {n:11,text:"Como você prefere receber um feedback negativo:",type:"mc",dims:["D","T"],opts:["Direto e rápido — sem rodeios","Com contexto completo e explicação detalhada","Em particular e com muito cuidado","Por escrito, para eu processar no meu tempo"]},
+  {n:12,text:"Quando você precisa convencer alguém de algo, qual é sua estratégia natural?",type:"open",dims:["D"],placeholder:"Como você normalmente faz isso?"},
+  {n:13,text:"Você se sente mais confortável com:",type:"scale",dims:["D"],labels:["Rotinas previsíveis e estabilidade","Mudanças constantes e novos desafios"]},
+  {n:14,text:"Quando você erra algo importante, sua tendência é:",type:"mc",dims:["D","E"],opts:["Me justificar — explico o contexto","Me punir — fico mal comigo mesmo por um tempo","Consertar rápido — foco na solução imediata","Analisar o que aconteceu antes de qualquer ação"]},
+  {n:15,text:"Em uma negociação, o que você dificilmente abre mão:",type:"mc",dims:["D"],opts:["Tempo — é meu recurso mais precioso","Dinheiro — resultado financeiro não negocio","Autonomia — preciso de liberdade para operar","Relacionamento — não destruo vínculos por negócio"]},
+  {n:16,text:"O que você mais teme que as pessoas descubram sobre você?",type:"open",dims:["E"],placeholder:"Seja o mais honesto possível…"},
+  {n:17,text:"O que faz você se sentir verdadeiramente valorizado por alguém?",type:"open",dims:["E"],placeholder:"O que precisa acontecer para você se sentir realmente visto?"},
+  {n:18,text:"Quando você se sente ameaçado emocionalmente, você tende a:",type:"mc",dims:["E","T"],opts:["Atacar ou confrontar","Me fechar e me afastar","Tentar agradar para diminuir a tensão","Racionalizar e minimizar o que sinto"]},
+  {n:19,text:"Você se vê mais como alguém que:",type:"mc",dims:["E"],opts:["Doa demais — me coloco muito pelos outros","Conquista demais — preciso sempre alcançar e provar","Pensa demais — analiso tudo antes de sentir","Questiona demais — preciso de certeza e segurança"]},
+  {n:20,text:"Existe algo que você faz repetidamente em relacionamentos que sabe que não funciona, mas continua fazendo?",type:"open",dims:["E","N"],placeholder:"Pode ser um padrão de comportamento, uma forma de reagir…"},
+  {n:21,text:"Quando você está no seu melhor, como as pessoas ao redor te descrevem?",type:"open",dims:["E"],placeholder:"Como você aparece para o mundo quando está bem?"},
+  {n:22,text:"E quando você está no seu pior — o que muda em você que as pessoas percebem primeiro?",type:"open",dims:["E"],placeholder:"Seja honesto — esse é o dado mais valioso do questionário"},
+  {n:23,text:"Qual é a frase que você mais ouviu na infância sobre quem você era ou devia ser?",type:"open",dims:["N"],placeholder:"Pode ser algo dito por pais, professores, família…"},
+  {n:24,text:"Como era a relação com a figura de autoridade mais presente na sua infância — e como você se via diante dela?",type:"open",dims:["N"],placeholder:"Pode ser pai, mãe, avó, professor…"},
+  {n:25,text:"Há algo que você nunca conseguiu pedir, mesmo precisando muito?",type:"open",dims:["N","E"],placeholder:"O que é difícil demais de pedir?"},
+  {n:26,text:"Você consegue identificar um padrão que se repete nas suas relações mais importantes?",type:"open",dims:["N"],placeholder:"Relacionamentos amorosos, profissionais, amizades…"},
+  {n:27,text:"Quando você sente raiva, o que acontece com ela?",type:"mc",dims:["N","T"],opts:["Expresso diretamente — não seguro","Engulo e fica por dentro por um tempo","Transformo em ação ou produtividade","Finjo que não sinto — não é raiva, é frustração"]},
+  {n:28,text:"Existe uma versão de você que você esconde da maioria das pessoas? O que essa versão sente ou quer?",type:"open",dims:["N"],placeholder:"A pergunta mais importante do questionário…"},
+  {n:29,text:"O que você acha que as pessoas mais subestimam em você?",type:"open",dims:["N"],placeholder:"O que está em você que o mundo não enxerga?"},
+  {n:30,text:"Se você pudesse mudar uma coisa fundamental em como você se relaciona com o mundo, o que seria?",type:"open",dims:["T","D","E","N"],placeholder:"Sem filtros…"},
+];
+
+const dimNames={T:"Temperamento",D:"DISC",E:"Eneagrama",N:"Neuropsicanálise"};
+const dimClass={T:"tag-T",D:"tag-D",E:"tag-E",N:"tag-N"};
+
+let current=0, answers={}, clientData={};
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+async function init(){
+  const params=new URLSearchParams(window.location.search);
+  const token=params.get('token');
+  if(!token){show('screen-invalid');return;}
+
+  try{
+    const r=await fetch('/api/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+    const d=await r.json();
+    if(!d.valido){
+      if(d.motivo==='ja_respondeu'){show('screen-already');}
+      else{show('screen-invalid');}
+      return;
+    }
+    clientData={nome:d.nome,email:d.email,cliente_id:d.cliente_id,token};
+    document.getElementById('welcome-name').textContent=d.nome;
+    document.getElementById('welcome-email').textContent=d.email;
+    show('screen-welcome');
+  }catch(e){
+    show('screen-invalid');
+  }
+}
+
+function startQuiz(){show('screen-quiz');renderQ(0);}
+
+function renderQ(idx){
+  current=idx;
+  const q=questions[idx];
+  const pct=Math.round((idx/30)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=`${idx+1} de 30`;
+  const tags=q.dims.map(d=>`<span class="dim-tag ${dimClass[d]}">${dimNames[d]}</span>`).join(' ');
+  const saved=answers[idx];
+  let inp='';
+  if(q.type==='scale'){
+    const sv=saved!==undefined?saved:null;
+    inp=`<div class="scale-row">${[1,2,3,4,5].map(v=>`<button class="scale-btn${sv===v?' sel':''}" onclick="selectScale(${v})" data-v="${v}">${v}</button>`).join('')}</div><div class="scale-labels"><span>${q.labels[0]}</span><span>${q.labels[1]}</span></div>`;
+  }else if(q.type==='mc'){
+    inp=q.opts.map((o,i)=>`<button class="mc-option${saved===i?' sel':''}" onclick="selectMc(${i})">${o}</button>`).join('');
+  }else{
+    inp=`<textarea id="ta" placeholder="${q.placeholder}" oninput="answers[current]=this.value.trim()">${saved||''}</textarea>`;
+  }
+  document.getElementById('q-container').innerHTML=`
+    <div class="q-block">
+      <div class="q-header"><span class="q-num">${idx+1} / 30</span>${tags}</div>
+      <div class="q-text">${q.text}</div>
+      ${inp}
+      <div class="nav-row">
+        ${idx>0?`<button class="btn-back" onclick="renderQ(${idx-1})">← Anterior</button>`:''}
+        <button class="btn-primary" id="btn-next" onclick="nextQ()" style="flex:1" ${isAnswered()?'':'disabled'}>
+          ${idx===29?'Enviar meu mapa':'Próxima →'}
+        </button>
+      </div>
+    </div>`;
+}
+
+function isAnswered(){
+  const q=questions[current],a=answers[current];
+  return q.type==='open'?(a&&a.length>2):a!==undefined;
+}
+function selectScale(v){answers[current]=v;document.querySelectorAll('.scale-btn').forEach(b=>b.classList.toggle('sel',+b.dataset.v===v));document.getElementById('btn-next').disabled=false;}
+function selectMc(i){answers[current]=i;document.querySelectorAll('.mc-option').forEach((b,x)=>b.classList.toggle('sel',x===i));document.getElementById('btn-next').disabled=false;}
+function nextQ(){if(current===29){send();}else{renderQ(current+1);}}
+
+function buildPrompt(){
+  const lines=questions.map((q,i)=>{
+    const a=answers[i];
+    const ans=q.type==='scale'?`${a}/5 (1=${q.labels[0].slice(0,30)} / 5=${q.labels[1].slice(0,30)})`:q.type==='mc'?q.opts[a]:a;
+    return `P${q.n}[${q.dims.join('+')}] ${q.text}\nR: ${ans}`;
+  }).join('\n\n');
+  return `Especialista em mapeamento comportamental integrando temperamento, DISC, eneagrama e neuropsicanálise freudiana. Analise as respostas de ${clientData.nome} e gere relatório clínico em português brasileiro para Marcelo Soares (PhD neuropsicoanálise, 25 anos de experiência) usar como base da devolutiva personalizada em vídeo.
+
+CLIENTE: ${clientData.nome} | ${clientData.email}
+RESPOSTAS:\n${lines}
+
+Responda APENAS JSON válido sem markdown:
+{"perfil_sintese":"2-3 frases diretas e clínicas","temperamento":{"tipo":"nome","descricao":"3-4 frases"},"disc":{"quadrante":"quadrante primário","descricao":"3-4 frases"},"eneagrama":{"tipo_provavel":"Tipo X — Nome","tipo_secundario":"Tipo Y — Nome","descricao":"3-4 frases"},"padrao_inconsciente":{"mecanismo":"nome","descricao":"3-4 frases"},"pontos_cegos":"2-3 pontos específicos","potencial_latente":"2-3 forças subestimadas","pauta_devolutiva":"5 tópicos numerados para Marcelo abordar"}`;
+}
+
+async function send(){
+  show('screen-loading');
+  const msgs=["Processando suas respostas…","Analisando padrões comportamentais…","Preparando relatório para Marcelo…","Quase pronto…"];
+  let mi=0;const lt=document.getElementById('loading-text');
+  const iv=setInterval(()=>{lt.innerHTML=msgs[mi%msgs.length]+'<br>Aguarde um momento.';mi++;},2800);
+
+  try{
+    // 1. Chama a IA para gerar o relatório
+    const aiResp=await fetch('/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:buildPrompt()})
+    });
+    const aiData=await aiResp.json();
+    const report=aiData.report;
+
+    // 2. Salva no Supabase + dispara email para Marcelo
+    await fetch('/api/save-report',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        cliente_id:clientData.cliente_id,
+        nome:clientData.nome,
+        email:clientData.email,
+        token:clientData.token,
+        relatorio:report,
+        respostas:answers
+      })
+    });
+
+    clearInterval(iv);
+    showDone();
+  }catch(err){
+    clearInterval(iv);
+    document.getElementById('loading-text').innerHTML=`<span style="color:#c06050">Erro ao processar. Por favor, tente novamente.</span>`;
+  }
+}
+
+function showDone(){
+  show('screen-done');
+  document.getElementById('conf-nome').textContent=clientData.nome.split(' ')[0];
+  document.getElementById('conf-email').textContent=clientData.email;
+}
+
+function sendIndication(){
+  const email=document.getElementById('inp-indicate').value.trim();
+  if(!email||!email.includes('@'))return;
+  fetch('/api/indicate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({de:clientData.email,para:email})});
+  document.getElementById('indicate-ok').style.display='block';
+  document.getElementById('inp-indicate').value='';
+}
+
+const shareUrl=window.location.origin;
+const shareMsg=`Fiz o Mapa Interior com o Marcelo Soares — ele analisa seu perfil comportamental com neurociência, DISC e eneagrama e entrega uma devolutiva personalizada em vídeo. Vale muito. Acessa: ${shareUrl}`;
+function shareWhatsApp(){window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(shareMsg));}
+function shareLink(){navigator.clipboard.writeText(shareUrl).then(()=>{document.getElementById('link-ok').style.display='block';setTimeout(()=>document.getElementById('link-ok').style.display='none',2500);});}
+
+init();
+</script>
+</body>
+</html>

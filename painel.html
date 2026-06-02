@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel — Mapa Interior</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font-family:Georgia,serif;background:#f9f7f4;color:#1a110a;min-height:100vh}
+  body{max-width:800px;margin:0 auto;padding:2rem 1.25rem 4rem}
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1rem;border-bottom:0.5px solid #e8e2da}
+  .header-left{display:flex;align-items:center;gap:.75rem}
+  .header-title{font-size:16px;font-weight:400;letter-spacing:.14em;text-transform:uppercase}
+  .header-sub{font-size:10px;color:#a09080;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+  .badge{font-size:10px;padding:3px 10px;border-radius:4px;background:#f0ede8;color:#6a5040;letter-spacing:.06em}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.75rem}
+  .stat{background:#fff;border:0.5px solid #e8e2da;border-radius:8px;padding:1rem 1.25rem}
+  .stat-n{font-size:28px;font-weight:400;color:#1a110a;margin-bottom:2px}
+  .stat-l{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#a09080}
+  .tabs{display:flex;gap:0;margin-bottom:1.25rem;border:0.5px solid #d8d0c6;border-radius:6px;overflow:hidden}
+  .tab{flex:1;padding:9px;font-family:Georgia,serif;font-size:12px;letter-spacing:.06em;border:none;background:transparent;color:#8a7868;cursor:pointer;text-transform:uppercase;transition:all .15s}
+  .tab.active{background:#1e1208;color:#f9f7f4}
+  .client-list{background:#fff;border:0.5px solid #e8e2da;border-radius:10px;overflow:hidden}
+  .client-row{padding:1rem 1.25rem;border-bottom:0.5px solid #f0ece8;cursor:pointer;transition:background .1s}
+  .client-row:last-child{border-bottom:none}
+  .client-row:hover{background:#faf8f5}
+  .client-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .client-name{font-size:14px;color:#1a110a}
+  .client-meta{font-size:11px;color:#a09080;margin-top:3px}
+  .client-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+  .chip{font-size:10px;padding:2px 8px;border-radius:4px;letter-spacing:.04em}
+  .chip-T{background:#f0ede8;color:#6a5040}
+  .chip-D{background:#e8f0ea;color:#3a6040}
+  .chip-E{background:#f0e8e8;color:#6a3030}
+  .chip-N{background:#ece8f0;color:#403060}
+  .status{font-size:10px;padding:3px 10px;border-radius:4px;letter-spacing:.06em;white-space:nowrap}
+  .status-pendente{background:#fef8e8;color:#8a7020}
+  .status-respondido{background:#e8f4ee;color:#2a7050}
+  .status-entregue{background:#f0ede8;color:#8a7060}
+  .report-detail{padding:1.25rem;background:#faf8f5;border-top:0.5px solid #f0ece8;display:none}
+  .report-detail.open{display:block}
+  .report-section{margin-bottom:1rem;padding-bottom:1rem;border-bottom:0.5px solid #f0ece8}
+  .report-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .report-section-title{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a09080;margin-bottom:.4rem}
+  .report-section p{font-size:13px;color:#3a2a1e;line-height:1.7}
+  .btn-row{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
+  .btn-sm{padding:8px 14px;font-family:Georgia,serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-radius:5px;cursor:pointer;transition:opacity .15s}
+  .btn-copy{background:#1e1208;color:#f9f7f4;border:none}
+  .btn-copy:hover{opacity:.85}
+  .btn-done{background:transparent;color:#6a8060;border:0.5px solid #b8d0b8}
+  .btn-done:hover{background:#f0f5f0}
+  .empty{text-align:center;padding:2.5rem;font-size:13px;color:#a09080}
+  .login-wrap{max-width:320px;margin:4rem auto;text-align:center}
+  .login-title{font-size:18px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem}
+  .login-sub{font-size:12px;color:#a09080;margin-bottom:1.5rem}
+  input.login{width:100%;padding:11px 14px;border:0.5px solid #d8d0c6;border-radius:6px;background:#fff;font-family:Georgia,serif;font-size:14px;color:#1a110a;outline:none;margin-bottom:.75rem}
+  .btn-login{width:100%;padding:12px;background:#1e1208;color:#f9f7f4;border:none;border-radius:6px;font-family:Georgia,serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+  .err{font-size:12px;color:#c06050;margin-top:.5rem}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-wrap">
+    <svg width="56" height="56" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 1.25rem">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#c8bfb4" stroke-width="0.8"/>
+      <circle cx="60" cy="60" r="43" fill="none" stroke="#d8d0c6" stroke-width="0.45" stroke-dasharray="2.5 7"/>
+      <circle cx="60" cy="60" r="30" fill="none" stroke="#e2dbd2" stroke-width="0.4" stroke-dasharray="1.5 9"/>
+      <polygon points="60,8 63.5,60 56.5,60" fill="#1e1208"/>
+      <polygon points="60,112 63.5,60 56.5,60" fill="#bdb0a4"/>
+      <polygon points="8,60 60,56.5 60,63.5" fill="#a89888" opacity="0.45"/>
+      <polygon points="112,60 60,56.5 60,63.5" fill="#a89888" opacity="0.45"/>
+      <circle cx="60" cy="60" r="5.5" fill="#f9f7f4" stroke="#1e1208" stroke-width="0.9"/>
+      <circle cx="60" cy="60" r="2" fill="#1e1208"/>
+    </svg>
+    <div class="login-title">Painel</div>
+    <div class="login-sub">Acesso restrito — Marcelo Soares</div>
+    <input class="login" type="password" id="inp-senha" placeholder="Senha de acesso" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn-login" onclick="login()">Entrar</button>
+    <div class="err" id="login-err" style="display:none">Senha incorreta.</div>
+  </div>
+</div>
+
+<div id="painel-screen" style="display:none">
+  <div class="header">
+    <div class="header-left">
+      <svg width="32" height="32" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="#c8bfb4" stroke-width="0.8"/>
+        <circle cx="60" cy="60" r="40" fill="none" stroke="#d8d0c6" stroke-width="0.5" stroke-dasharray="2.5 7"/>
+        <polygon points="60,8 63.5,60 56.5,60" fill="#1e1208"/>
+        <polygon points="60,112 63.5,60 56.5,60" fill="#bdb0a4"/>
+        <polygon points="8,60 60,56.5 60,63.5" fill="#a89888" opacity="0.45"/>
+        <polygon points="112,60 60,56.5 60,63.5" fill="#a89888" opacity="0.45"/>
+        <circle cx="60" cy="60" r="2" fill="#1e1208"/>
+      </svg>
+      <div>
+        <div class="header-title">Mapa Interior</div>
+        <div class="header-sub">Painel de relatórios</div>
+      </div>
+    </div>
+    <span class="badge">Marcelo Soares</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Total</div></div>
+    <div class="stat"><div class="stat-n" id="s-pendente">—</div><div class="stat-l">Aguardando</div></div>
+    <div class="stat"><div class="stat-n" id="s-entregue">—</div><div class="stat-l">Entregues</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('respondido')">Novos</button>
+    <button class="tab" onclick="setTab('entregue')">Entregues</button>
+    <button class="tab" onclick="setTab('todos')">Todos</button>
+  </div>
+
+  <div class="client-list" id="client-list">
+    <div class="empty">Carregando…</div>
+  </div>
+</div>
+
+<script>
+const SENHA = 'marcelo2025'; // Troque aqui pela sua senha
+let currentTab = 'respondido';
+let allData = [];
+
+function login(){
+  const v = document.getElementById('inp-senha').value;
+  if(v === SENHA){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('painel-screen').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+async function loadData(){
+  try{
+    const r = await fetch('/api/painel', { headers: { 'x-painel-key': SENHA } });
+    const d = await r.json();
+    allData = d.clientes || [];
+    renderStats();
+    renderList();
+  } catch(e){
+    document.getElementById('client-list').innerHTML = '<div class="empty">Erro ao carregar dados.</div>';
+  }
+}
+
+function renderStats(){
+  document.getElementById('s-total').textContent = allData.length;
+  document.getElementById('s-pendente').textContent = allData.filter(c => c.status === 'respondido').length;
+  document.getElementById('s-entregue').textContent = allData.filter(c => c.status === 'entregue').length;
+}
+
+function setTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', ['respondido','entregue','todos'][i] === tab));
+  renderList();
+}
+
+function renderList(){
+  const filtered = currentTab === 'todos' ? allData : allData.filter(c => c.status === currentTab);
+  const list = document.getElementById('client-list');
+  if(!filtered.length){ list.innerHTML = '<div class="empty">Nenhum registro nesta aba.</div>'; return; }
+
+  list.innerHTML = filtered.map(c => {
+    const r = c.relatorio || {};
+    const chips = [
+      r.temperamento_tipo ? `<span class="chip chip-T">${r.temperamento_tipo}</span>` : '',
+      r.disc_quadrante ? `<span class="chip chip-D">DISC ${r.disc_quadrante}</span>` : '',
+      r.eneagrama_tipo ? `<span class="chip chip-E">${r.eneagrama_tipo}</span>` : '',
+      r.padrao_mecanismo ? `<span class="chip chip-N">${r.padrao_mecanismo}</span>` : '',
+    ].join('');
+    const statusLabel = {pendente:'Aguardando',respondido:'Novo',entregue:'Entregue'}[c.status]||c.status;
+    const statusClass = `status-${c.status}`;
+    return `
+      <div class="client-row" onclick="toggleDetail('${c.id}')">
+        <div class="client-top">
+          <div>
+            <div class="client-name">${c.nome}</div>
+            <div class="client-meta">${c.email} · ${new Date(c.criado_em).toLocaleDateString('pt-BR')}</div>
+            <div class="client-chips">${chips}</div>
+          </div>
+          <span class="status ${statusClass}">${statusLabel}</span>
+        </div>
+      </div>
+      <div class="report-detail" id="det-${c.id}">
+        ${r.perfil_sintese ? `
+          <div class="report-section"><div class="report-section-title">Síntese do perfil</div><p>${r.perfil_sintese}</p></div>
+          <div class="report-section"><div class="report-section-title">Temperamento — ${r.temperamento_tipo||''}</div><p>${r.temperamento_desc||''}</p></div>
+          <div class="report-section"><div class="report-section-title">DISC — ${r.disc_quadrante||''}</div><p>${r.disc_desc||''}</p></div>
+          <div class="report-section"><div class="report-section-title">Eneagrama — ${r.eneagrama_tipo||''}</div><p>${r.eneagrama_desc||''}</p></div>
+          <div class="report-section"><div class="report-section-title">Padrão inconsciente — ${r.padrao_mecanismo||''}</div><p>${r.padrao_desc||''}</p></div>
+          <div class="report-section"><div class="report-section-title">Pontos cegos</div><p>${r.pontos_cegos||''}</p></div>
+          <div class="report-section"><div class="report-section-title">Potencial latente</div><p>${r.potencial_latente||''}</p></div>
+          <div class="report-section"><div class="report-section-title">Pauta da devolutiva</div><p style="white-space:pre-line">${r.pauta_devolutiva||''}</p></div>
+          <div class="btn-row">
+            <button class="btn-sm btn-copy" onclick="copyReport('${c.id}');event.stopPropagation()">Copiar relatório</button>
+            ${c.status !== 'entregue' ? `<button class="btn-sm btn-done" onclick="markDone('${c.id}');event.stopPropagation()">✓ Marcar como entregue</button>` : ''}
+          </div>
+        ` : '<p style="font-size:13px;color:#a09080">Relatório ainda não gerado.</p>'}
+      </div>`;
+  }).join('');
+}
+
+function toggleDetail(id){
+  const el = document.getElementById('det-'+id);
+  if(el) el.classList.toggle('open');
+}
+
+async function markDone(id){
+  await fetch('/api/mark-done', { method:'POST', headers:{'Content-Type':'application/json','x-painel-key':SENHA}, body:JSON.stringify({cliente_id:id}) });
+  const c = allData.find(x => x.id === id);
+  if(c){ c.status = 'entregue'; renderStats(); renderList(); }
+}
+
+function copyReport(id){
+  const c = allData.find(x => x.id === id);
+  if(!c) return;
+  const r = c.relatorio || {};
+  const txt = `MAPA INTERIOR — ${c.nome}\n${c.email}\n${new Date(c.criado_em).toLocaleDateString('pt-BR')}\n\nPERFIL: ${r.temperamento_tipo} | DISC ${r.disc_quadrante} | ${r.eneagrama_tipo} | ${r.padrao_mecanismo}\n\nSÍNTESE\n${r.perfil_sintese}\n\nTEMPERAMENTO\n${r.temperamento_desc}\n\nDISC\n${r.disc_desc}\n\nENEAGRAMA\n${r.eneagrama_desc}\n\nPADRÃO INCONSCIENTE\n${r.padrao_desc}\n\nPONTOS CEGOS\n${r.pontos_cegos}\n\nPOTENCIAL LATENTE\n${r.potencial_latente}\n\nPAUTA DEVOLUTIVA\n${r.pauta_devolutiva}`;
+  navigator.clipboard.writeText(txt);
+}
+</script>
+</body>
+</html>
