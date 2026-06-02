@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mapa Interior — Marcelo Soares</title>
- 
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html{font-family:Georgia,serif;background:#f9f7f4;color:#1a110a;min-height:100vh}
@@ -298,8 +297,8 @@ function renderQ(idx){
     inp=`<div class="scale-row">${[1,2,3,4,5].map(v=>`<button class="scale-btn${sv===v?' sel':''}" onclick="selectScale(${v})" data-v="${v}">${v}</button>`).join('')}</div><div class="scale-labels"><span>${q.labels[0]}</span><span>${q.labels[1]}</span></div>`;
   }else if(q.type==='mc'){
     inp=q.opts.map((o,i)=>`<button class="mc-option${saved===i?' sel':''}" onclick="selectMc(${i})">${o}</button>`).join('');
-  
-    inp=`<textarea id="ta" placeholder="${q.placeholder}" oninput="answers[current]=this.value.trim();updateBtn()">${saved||''}</textarea>`;
+  }else{
+    inp=`<textarea id="ta" placeholder="${q.placeholder}" oninput="answers[current]=this.value.trim();if(document.getElementById('btn-next'))document.getElementById('btn-next').disabled=this.value.trim().length<3">${saved||''}</textarea>`;
   }
   document.getElementById('q-container').innerHTML=`
     <div class="q-block">
@@ -308,7 +307,7 @@ function renderQ(idx){
       ${inp}
       <div class="nav-row">
         ${idx>0?`<button class="btn-back" onclick="renderQ(${idx-1})">← Anterior</button>`:''}
-        <button class="btn-primary" id="btn-next" onclick="nextQ()" style="flex:1" disabled>
+        <button class="btn-primary" id="btn-next" onclick="nextQ()" style="flex:1" ${isAnswered()?'':'disabled'}>
           ${idx===29?'Enviar meu mapa':'Próxima →'}
         </button>
       </div>
